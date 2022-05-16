@@ -27,7 +27,7 @@ param hubVnetResourceId string
 param location string
 
 // A designator that represents a business unit id and application id
-var orgAppId = 'BU0001A0008'
+var orgAppId = 'spoonds-dev-k8s'
 var clusterVNetName = 'vnet-spoke-${orgAppId}-00'
 
 /*** EXISTING HUB RESOURCES ***/
@@ -46,13 +46,13 @@ resource hubVirtualNetwork 'Microsoft.Network/virtualNetworks@2021-05-01' existi
 // This is the firewall that was deployed in 'hub-default.bicep'
 resource hubFirewall 'Microsoft.Network/azureFirewalls@2021-05-01' existing = {
   scope: hubResourceGroup
-  name: 'fw-${location}'
+  name: 'fw-dev-k8s-${location}'
 }
 
 // This is the networking log analytics workspace (in the hub)
 resource laHub 'Microsoft.OperationalInsights/workspaces@2021-06-01' existing = {
   scope: hubResourceGroup
-  name: 'la-hub-${location}'
+  name: 'logAnalytics-dev-k8s-hub-${location}'
 }
 
 /*** RESOURCES ***/

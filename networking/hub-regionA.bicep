@@ -24,7 +24,7 @@ param nodepoolSubnetResourceIds array
   'southeastasia'
 ])
 @description('The hub\'s regional affinity. All resources tied to this hub will also be homed in this region. The network team maintains this approved regional list which is a subset of zones with Availability Zone support.')
-param location string = 'eastus2'
+param location string = 'westeurope'
 
 @description('Optional. A /24 to contain the regional firewall, management, and gateway subnet. Defaults to 10.200.0.0/24')
 @maxLength(18)
@@ -51,7 +51,7 @@ param hubVirtualNetworkBastionSubnetAddressSpace string = '10.200.0.96/27'
 // This Log Analytics workspace stores logs from the regional hub network, its spokes, and bastion.
 // Log analytics is a regional resource, as such there will be one workspace per hub (region)
 resource laHub 'Microsoft.OperationalInsights/workspaces@2021-06-01' = {
-  name: 'la-hub-${location}'
+  name: 'logAnalytics-dev-k8s-hub-${location}'
   location: location
   properties: {
     sku: {
@@ -93,7 +93,7 @@ resource laHub_diagnosticsSettings 'Microsoft.Insights/diagnosticSettings@2021-0
 
 // NSG around the Azure Bastion Subnet.
 resource nsgBastionSubnet 'Microsoft.Network/networkSecurityGroups@2021-05-01' = {
-  name: 'nsg-${location}-bastion'
+  name: 'nsg-dev-k8s-${location}-bastion'
   location: location
   properties: {
     securityRules: [
@@ -277,7 +277,7 @@ resource nsgBastionSubnet_diagnosticSettings 'Microsoft.Insights/diagnosticSetti
 
 // The regional hub network
 resource vnetHub 'Microsoft.Network/virtualNetworks@2021-05-01' = {
-  name: 'vnet-${location}-hub'
+  name: 'vnet-dev-k8s-${location}-hub'
   location: location
   properties: {
     addressSpace: {
@@ -332,7 +332,7 @@ resource vnetHub_diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-
 // Allocate three IP addresses to the firewall
 var numFirewallIpAddressesToAssign = 3
 resource pipsAzureFirewall 'Microsoft.Network/publicIPAddresses@2021-05-01' = [for i in range(0, numFirewallIpAddressesToAssign): {
-  name: 'pip-fw-${location}-${padLeft(i, 2, '0')}'
+  name: 'pip-fw-dev-k8s-${location}-${padLeft(i, 2, '0')}'
   location: location
   sku: {
     name: 'Standard'
@@ -371,7 +371,7 @@ resource pipAzureFirewall_diagnosticSetting 'Microsoft.Insights/diagnosticSettin
 
 // This holds IP addresses of known nodepool subnets in spokes.
 resource ipgNodepoolSubnet 'Microsoft.Network/ipGroups@2021-05-01' = {
-  name: 'ipg-${location}-AksNodepools'
+  name: 'ipg-dev-k8s-${location}-AksNodepools'
   location: location
   properties: {
     ipAddresses: [for nodepoolSubnetResourceId in nodepoolSubnetResourceIds: '${reference(nodepoolSubnetResourceId, '2020-05-01').addressPrefix}']
@@ -380,7 +380,7 @@ resource ipgNodepoolSubnet 'Microsoft.Network/ipGroups@2021-05-01' = {
 
 // Azure Firewall starter policy
 resource fwPolicy 'Microsoft.Network/firewallPolicies@2021-05-01' = {
-  name: 'fw-policies-${location}'
+  name: 'fw-policies-dev-k8s-${location}'
   location: location
   dependsOn: [
     ipgNodepoolSubnet
@@ -671,7 +671,7 @@ resource fwPolicy 'Microsoft.Network/firewallPolicies@2021-05-01' = {
 
 // This is the regional Azure Firewall that all regional spoke networks can egress through.
 resource hubFirewall 'Microsoft.Network/azureFirewalls@2021-05-01' = {
-  name: 'fw-${location}'
+  name: 'fw-dev-k8s-${location}'
   location: location
   zones: [
     '1'

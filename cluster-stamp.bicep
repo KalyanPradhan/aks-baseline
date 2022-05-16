@@ -42,15 +42,15 @@ param clusterAuthorizedIPRanges array = []
   'japaneast'
   'southeastasia'
 ])
-param location string = 'eastus2'
+param location string = 'westeurope'
 param kubernetesVersion string = '1.23.5'
 
 @description('Domain name to use for App Gateway and AKS ingress.')
-param domainName string = 'contoso.com'
+param domainName string = 'matrix.spoonds.com'
 
 @description('Your cluster will be bootstrapped from this git repo.')
 @minLength(9)
-param gitOpsBootstrappingRepoHttpsUrl string = 'https://github.com/mspnp/aks-baseline'
+param gitOpsBootstrappingRepoHttpsUrl string = 'https://github.com/KalyanPradhan/aks-baseline'
 
 @description('You cluster will be bootstrapped from this branch in the identified git repo.')
 @minLength(1)
@@ -60,7 +60,7 @@ param gitOpsBootstrappingRepoBranch string = 'main'
 
 var subRgUniqueString = uniqueString('aks', subscription().subscriptionId, resourceGroup().id)
 
-var clusterName = 'aks-${subRgUniqueString}'
+var clusterName = 'spoonds-dev-k8s'
 var nodeResourceGroupName = 'rg-${clusterName}-nodepools'
 var defaultAcrName = 'acraks${subRgUniqueString}'
 
@@ -68,7 +68,7 @@ var agwName = 'apw-${clusterName}'
 var wafPolicyName = 'waf-${clusterName}'
 
 var aksIngressDomainName = 'aks-ingress.${domainName}'
-var aksBackendDomainName = 'bu0001a0008-00.${aksIngressDomainName}'
+var aksBackendDomainName = 'api-dev.${aksIngressDomainName}'
 var policyResourceIdAKSLinuxRestrictive = '/providers/Microsoft.Authorization/policySetDefinitions/42b8ef37-b724-4e24-bbc8-7a7708edfe00'
 var policyResourceIdEnforceHttpsIngress = '/providers/Microsoft.Authorization/policyDefinitions/1a5b4dca-0b6f-4cf5-907c-56316bc1bf3d'
 var policyResourceIdEnforceInternalLoadBalancers = '/providers/Microsoft.Authorization/policyDefinitions/3fc4dc25-5baf-40d8-9b05-7fe74c1bc64e'
